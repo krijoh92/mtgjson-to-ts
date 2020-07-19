@@ -56,29 +56,33 @@ function fixBrokenFields(data: any) {
     if (typeof data[key] === 'object') {
       fixBrokenFields(data[key])
     } else {
-      if (key === 'type' && data[key].match(arrayRegxp)) {
+      if (key === 'type') {
         const fieldTypes = data[key].split('|').map(t => t.replace(/\s/, ''))
-        const typeLine =
-          fieldTypes.filter(t => t.includes('array')).length === fieldTypes.length
-            ? 'array'
-            : fieldTypes.map(t => (t.includes('array') ? 'array' : t))
+        if (data[key].match(arrayRegxp)) {
+          const typeLine =
+            fieldTypes.filter(t => t.includes('array')).length === fieldTypes.length
+              ? 'array'
+              : fieldTypes.map(t => (t.includes('array') ? 'array' : t))
 
-        let itemType: string | undefined
+          let itemType: string | undefined
 
-        for (const item of fieldTypes.filter(t => t.match(arrayRegxp))) {
-          const [_, matchType] = item.match(arrayRegxp)
-          itemType = matchType
-        }
+          for (const item of fieldTypes.filter(t => t.match(arrayRegxp))) {
+            const [_, matchType] = item.match(arrayRegxp)
+            itemType = matchType
+          }
 
-        if (itemType === 'string') {
-          data.items = {type: itemType}
-          data[key] = typeLine
-        } else if (itemType === 'object') {
-          data[key] = typeLine
+          if (itemType === 'string') {
+            data.items = {type: itemType}
+            data[key] = typeLine
+          } else if (itemType === 'object') {
+            data[key] = typeLine
+            fixTypeRef(data)
+          }
+        } else if (data[key] === 'object') {
           fixTypeRef(data)
+        } else {
+          data[key] = fieldTypes.length === 1 ? fieldTypes[0] : fieldTypes
         }
-      } else if (key === 'type' && data[key] === 'object') {
-        fixTypeRef(data)
       }
 
       if (key === 'type' && data[key] === 'float') {
