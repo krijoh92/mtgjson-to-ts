@@ -102,7 +102,7 @@ function findRequiredFields(data: any) {
   const required = []
 
   for (const key of Object.keys(data)) {
-    if (data[key].attributes) {
+    if (!data[key].attributes) {
       required.push(key)
     }
   }
