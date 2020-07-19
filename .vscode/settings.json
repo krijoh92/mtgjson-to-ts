@@ -1,0 +1,9 @@
+  
+  {
+    "editor.rulers": [
+      100
+    ],
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true
+    },
+  }
