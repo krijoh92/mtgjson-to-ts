@@ -43,9 +43,21 @@ function fixTypeRef(data: any) {
 
     for (const match of matches) {
       const typeRef = camelCase(match[1].replace(/\(.{1,}\)/, ''))
-      itemRefs.push({$ref: `#/definitions/${typeRef}`})
+      itemRefs.push(`#/definitions/${typeRef}`)
     }
-    data.items = itemRefs.length > 1 ? itemRefs : itemRefs[0]
+    if (data.type === 'object' && itemRefs.length === 1) {
+      for (const key of Object.keys(data)) {
+        delete data[key]
+      }
+      data.$ref = itemRefs[0]
+    } else {
+      data.items =
+        itemRefs.length > 1
+          ? itemRefs.map(ref => ({
+              $ref: ref,
+            }))
+          : {$ref: itemRefs[0]}
+    }
   }
 }
 
