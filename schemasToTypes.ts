@@ -101,11 +101,11 @@ function fixBrokenFields(data: any) {
             }
 
             return objectRef.length === 1
-              ? {$ref: objectRef[0]}
-              : objectRef.map(ref => ({$ref: ref}))
+              ? {type: 'array', items: {$ref: objectRef[0]}}
+              : {type: 'array', items: objectRef.map(ref => ({$ref: ref}))}
+          } else {
+            return {type: 'array', items: {type}}
           }
-
-          return {type: 'array', items: {type}}
         }
 
         if (t === 'object' && data[property].example) {
@@ -113,7 +113,9 @@ function fixBrokenFields(data: any) {
           return objectRef.length === 1 ? {$ref: objectRef[0]} : objectRef.map(ref => ({$ref: ref}))
         }
 
-        return {type: t.replace('float', 'number')}
+        return t === 'array' // default to string when not defined in array typing
+          ? {type: t, items: {type: 'string'}}
+          : {type: t.replace('float', 'number')}
       })
       .reduce((sum, next) => sum.concat(Array.isArray(next) ? next : [next]), [])
 
